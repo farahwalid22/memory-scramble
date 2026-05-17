@@ -54,81 +54,7 @@ class MemoryGameApp:
         timeout = self.timeout_var.get()
 
         if (rows * cols) % 2 != 0:
-            messagebox.showerror(
-                "Invalid Size", "rows x columns must be even.")
-            return
-
-        try:
-            self.board = GameBoard(rows, cols)
-        except ValueError as e:
-            messagebox.showerror("Error", str(e))
-            return
-
-        self.time_left = timeout
-        # game screen coming in next commit
-        messagebox.showinfo(
-            "OK", f"Board {rows}x{cols} ready, timer={timeout}s")
-
-    def _clear(self):
-        if self.timer_id:
-            self.root.after_cancel(self.timer_id)
-            self.timer_id = None
-        for w in self.root.winfo_children():
-            w.destroy()
-
-
-class MemoryGameApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.configure(bg=config.BG_COLOR)
-        self.board = None
-        self.buttons = []
-        self.timer_id = None
-        self.time_left = 0
-        self.waiting = False
-        self._setup_screen()
-
-    def _setup_screen(self):
-        self._clear()
-        self.root.title("Memory Scramble")
-
-        frame = tk.Frame(self.root, bg=config.BG_COLOR, padx=40, pady=30)
-        frame.pack()
-
-        tk.Label(frame, text="Memory Scramble", font=("Arial", 20, "bold"),
-                 bg=config.BG_COLOR, fg=config.TEXT_COLOR).grid(row=0, column=0, columnspan=2, pady=(0, 18))
-
-        tk.Label(frame, text="Rows:", font=("Arial", 12),
-                 bg=config.BG_COLOR, fg=config.TEXT_COLOR).grid(row=1, column=0, sticky="e", pady=5)
-        self.rows_var = tk.IntVar(value=config.DEFAULT_ROWS)
-        tk.Spinbox(frame, from_=2, to=8, textvariable=self.rows_var,
-                   width=5, font=("Arial", 12)).grid(row=1, column=1, sticky="w", padx=8)
-
-        tk.Label(frame, text="Columns:", font=("Arial", 12),
-                 bg=config.BG_COLOR, fg=config.TEXT_COLOR).grid(row=2, column=0, sticky="e", pady=5)
-        self.cols_var = tk.IntVar(value=config.DEFAULT_COLS)
-        tk.Spinbox(frame, from_=2, to=8, textvariable=self.cols_var,
-                   width=5, font=("Arial", 12)).grid(row=2, column=1, sticky="w", padx=8)
-
-        tk.Label(frame, text="Time (sec):", font=("Arial", 12),
-                 bg=config.BG_COLOR, fg=config.TEXT_COLOR).grid(row=3, column=0, sticky="e", pady=5)
-        self.timeout_var = tk.IntVar(value=config.DEFAULT_TIMEOUT)
-        tk.Spinbox(frame, from_=10, to=300, increment=10, textvariable=self.timeout_var,
-                   width=5, font=("Arial", 12)).grid(row=3, column=1, sticky="w", padx=8)
-
-        tk.Button(frame, text="Start Game", font=("Arial", 13, "bold"),
-                  bg=config.BUTTON_COLOR, fg="white", relief="flat",
-                  padx=18, pady=7, cursor="hand2",
-                  command=self._start).grid(row=4, column=0, columnspan=2, pady=18)
-
-    def _start(self):
-        rows = self.rows_var.get()
-        cols = self.cols_var.get()
-        timeout = self.timeout_var.get()
-
-        if (rows * cols) % 2 != 0:
-            messagebox.showerror(
-                "Invalid Size", "rows x columns must be even.")
+            messagebox.showerror("Invalid Size", "rows x columns must be even.")
             return
 
         try:
@@ -150,13 +76,13 @@ class MemoryGameApp:
                  bg=config.BG_COLOR, fg=config.TEXT_COLOR).pack(side="left", padx=(16, 4))
 
         self.timer_lbl = tk.Label(top, text=str(self.time_left),
-                                  font=("Arial", 14, "bold"),
-                                  bg=config.BG_COLOR, fg=config.TIMER_NORMAL_COLOR)
+                                   font=("Arial", 14, "bold"),
+                                   bg=config.BG_COLOR, fg=config.TIMER_NORMAL_COLOR)
         self.timer_lbl.pack(side="left")
 
         self.score_lbl = tk.Label(top, text=f"Pairs: 0 / {self.board.total_pairs}",
-                                  font=("Arial", 12),
-                                  bg=config.BG_COLOR, fg=config.TEXT_COLOR)
+                                   font=("Arial", 12),
+                                   bg=config.BG_COLOR, fg=config.TEXT_COLOR)
         self.score_lbl.pack(side="right", padx=16)
 
         grid = tk.Frame(self.root, bg=config.BG_COLOR, padx=10, pady=8)
@@ -179,6 +105,8 @@ class MemoryGameApp:
                 btn.grid(row=r, column=c, padx=4, pady=4)
                 row_btns.append(btn)
             self.buttons.append(row_btns)
+
+        self._tick()
 
     def _click(self, r, c):
         if self.waiting:
@@ -225,6 +153,47 @@ class MemoryGameApp:
                                               fg=config.CARD_BACK_COLOR,
                                               bg=config.CARD_BACK_COLOR)
         self.waiting = False
+
+    # countdown timer - added this commit
+    def _tick(self):
+        if self.time_left <= 0:
+            self._end(won=False)
+            return
+
+        if self.time_left > 20:
+            c = config.TIMER_NORMAL_COLOR
+        elif self.time_left > 10:
+            c = config.TIMER_WARNING_COLOR
+        else:
+            c = config.TIMER_DANGER_COLOR
+
+        self.timer_lbl.config(text=str(self.time_left), fg=c)
+        self.time_left -= 1
+        self.timer_id = self.root.after(1000, self._tick)
+
+    def _end(self, won):
+        if self.timer_id:
+            self.root.after_cancel(self.timer_id)
+            self.timer_id = None
+
+        self._clear()
+
+        frame = tk.Frame(self.root, bg=config.BG_COLOR, padx=60, pady=40)
+        frame.pack()
+
+        # game over screen only for now
+        tk.Label(frame, text="⏰", font=("Arial", 50),
+                 bg=config.BG_COLOR).pack()
+        tk.Label(frame, text="Game Over!", font=("Arial", 24, "bold"),
+                 bg=config.BG_COLOR, fg="#FF6B6B").pack(pady=8)
+        tk.Label(frame,
+                 text=f"Matched: {self.board.matched_pairs} / {self.board.total_pairs}",
+                 font=("Arial", 12), bg=config.BG_COLOR, fg=config.TEXT_COLOR).pack()
+
+        tk.Button(frame, text="Try Again", font=("Arial", 12, "bold"),
+                  bg=config.BUTTON_COLOR, fg="white", relief="flat",
+                  padx=14, pady=7, cursor="hand2",
+                  command=self._setup_screen).pack(pady=16)
 
     def _clear(self):
         if self.timer_id:
