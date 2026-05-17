@@ -19,8 +19,8 @@ python main.py
 - Match all pairs before time runs out to win
 
 ## Team
-- Farah Walid Ahmed - [ID]
-- [AbdelRahman Name] - [ID]
+- [Farah Walid Ahmed] - [11422025483576]
+- [AbdelRahman Ahmed] - [11422025439413]
 - [Mohamed Sherif Yussef] - [11422025461992]
 
 ## Files

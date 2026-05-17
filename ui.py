@@ -185,11 +185,14 @@ class MemoryGameApp:
         frame = tk.Frame(self.root, bg=config.BG_COLOR, padx=60, pady=40)
         frame.pack()
 
-        # game over screen only for now
-        tk.Label(frame, text="⏰", font=("Arial", 50),
+        icon = "🏆" if won else "⏰"
+        message = "You Win!" if won else "Game Over!"
+        message_color = "#A8D8A8" if won else "#FF6B6B"
+
+        tk.Label(frame, text=icon, font=("Arial", 50),
                  bg=config.BG_COLOR).pack()
-        tk.Label(frame, text="Game Over!", font=("Arial", 24, "bold"),
-                 bg=config.BG_COLOR, fg="#FF6B6B").pack(pady=8)
+        tk.Label(frame, text=message, font=("Arial", 24, "bold"),
+                 bg=config.BG_COLOR, fg=message_color).pack(pady=8)
         tk.Label(frame,
                  text=f"Matched: {self.board.matched_pairs} / {self.board.total_pairs}",
                  font=("Arial", 12), bg=config.BG_COLOR, fg=config.TEXT_COLOR).pack()
