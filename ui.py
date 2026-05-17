@@ -54,7 +54,8 @@ class MemoryGameApp:
         timeout = self.timeout_var.get()
 
         if (rows * cols) % 2 != 0:
-            messagebox.showerror("Invalid Size", "rows x columns must be even.")
+            messagebox.showerror(
+                "Invalid Size", "rows x columns must be even.")
             return
 
         try:
@@ -76,13 +77,13 @@ class MemoryGameApp:
                  bg=config.BG_COLOR, fg=config.TEXT_COLOR).pack(side="left", padx=(16, 4))
 
         self.timer_lbl = tk.Label(top, text=str(self.time_left),
-                                   font=("Arial", 14, "bold"),
-                                   bg=config.BG_COLOR, fg=config.TIMER_NORMAL_COLOR)
+                                  font=("Arial", 14, "bold"),
+                                  bg=config.BG_COLOR, fg=config.TIMER_NORMAL_COLOR)
         self.timer_lbl.pack(side="left")
 
         self.score_lbl = tk.Label(top, text=f"Pairs: 0 / {self.board.total_pairs}",
-                                   font=("Arial", 12),
-                                   bg=config.BG_COLOR, fg=config.TEXT_COLOR)
+                                  font=("Arial", 12),
+                                  bg=config.BG_COLOR, fg=config.TEXT_COLOR)
         self.score_lbl.pack(side="right", padx=16)
 
         grid = tk.Frame(self.root, bg=config.BG_COLOR, padx=10, pady=8)
@@ -128,6 +129,9 @@ class MemoryGameApp:
 
             self.score_lbl.config(
                 text=f"Pairs: {self.board.matched_pairs} / {self.board.total_pairs}")
+
+            if self.board.is_complete():
+                self._end(won=True)
 
         elif result == "no_match":
             self.waiting = True
